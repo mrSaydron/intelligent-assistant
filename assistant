@@ -1,0 +1,2 @@
+#!/bin/bash
+java -jar /home/aleksey/IdeaProjects/intelligent-assistant-v2/intelligent-assistant-v2/build/libs/intelligent-assistant-all.jar "$@"
