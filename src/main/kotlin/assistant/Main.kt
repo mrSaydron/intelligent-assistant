@@ -6,6 +6,8 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
 
+private val logger = Logger.getLogger("Main")
+
 fun main(args: Array<String>) {
     config = AssistantConfig.load()
 
@@ -45,7 +47,7 @@ private fun handleCommandParams(args: Array<String>): MutableList<String> {
                     printConfig()
                     exitProcess(0)
                 }
-                else -> if (!args[i - 1].startsWith("--")) promptArgs += args[i]
+                else -> if (i == 0 || !args[i - 1].startsWith("--")) promptArgs += args[i]
             }
         }
         configureLogging(Level.parse(it.logLevel))
@@ -87,7 +89,9 @@ fun processResponse(response: JsonMessage) {
             println("💬 Модель: ${response.content}")
         }
 
-        else -> println("⚠️ Неизвестный тип: ${response.type}")
+        else -> {
+            logger.warning("Неизвестный тип ответа: $response")
+        }
     }
 }
 
