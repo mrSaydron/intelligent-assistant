@@ -7,7 +7,23 @@ import java.io.File
 @Serializable
 data class AssistantConfig(
     var model: String = "llama3.2",
-    var logLevel: String = "WARNING"
+    var logLevel: String = "WARNING",
+    var initialPrompt: String = """
+            Ты - интеллектуальный ассистент, который помогает пользователю выполнять задачи в Ubuntu через консоль. 
+            Ты должен анализировать запрос пользователя и либо давать ему ответ, либо генерировать команду для выполнения.
+            
+            Ответ должен быть в одном из двух форматов. Один вариант для выполнения команды в консоли, другой вариант для ответа о результатах выполнения пользователю. Других форматов ответа быть не должно.
+            1. Ответ для выполнения команды в консоли:
+            {
+              "type": "execute",
+              "command": "..."
+            }
+            2. Ответ пользователю о результате работы:
+            {
+              "type": "message",
+              "content": "..."
+            }
+        """.trimIndent(),
 ) {
     companion object {
         var config: AssistantConfig? = null
@@ -31,5 +47,6 @@ data class AssistantConfig(
             configFile.parentFile.mkdirs()
             configFile.writeText(Json { prettyPrint = true }.encodeToString(serializer(), config))
         }
+
     }
 }

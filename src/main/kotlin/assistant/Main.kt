@@ -33,12 +33,29 @@ fun main(args: Array<String>) {
 private fun handleCommandParams(args: Array<String>): MutableList<String> {
     val promptArgs = mutableListOf<String>()
     config?.let {
-        var needSave = false
         for (i in args.indices) {
             when (args[i]) {
-                "--model" -> if (i + 1 < args.size) it.model = args[i + 1]
-                "--log-level" -> if (i + 1 < args.size) it.logLevel = args[i + 1].uppercase()
-                "--save-config" -> needSave = true
+                "--model" -> {
+                    if (i + 1 < args.size) {
+                        it.model = args[i + 1]
+                        AssistantConfig.save(it)
+                    }
+                }
+                "--log-level" -> {
+                    if (i + 1 < args.size) {
+                        it.logLevel = args[i + 1].uppercase()
+                        AssistantConfig.save(it)
+                    }
+                }
+                "--initial-prompt" -> {
+                    if (i + 1 < args.size && !args[i + 1].startsWith("--")) {
+                        it.initialPrompt = args[i + 1]
+                        AssistantConfig.save(it)
+                    } else {
+                        it.initialPrompt = AssistantConfig().initialPrompt
+                        AssistantConfig.save(it)
+                    }
+                }
                 "--help" -> {
                     printHelp()
                     exitProcess(0)
@@ -51,7 +68,6 @@ private fun handleCommandParams(args: Array<String>): MutableList<String> {
             }
         }
         configureLogging(Level.parse(it.logLevel))
-        if (needSave) AssistantConfig.save(it)
     }
     return promptArgs
 }
@@ -60,19 +76,21 @@ fun printHelp() {
     println("""
         🤖 Assistant CLI — параметры запуска:
 
-        --model <имя>           Использовать модель (например: llama3.2, gemma3)
-        --log-level <уровень>   Уровень логирования: DEBUG, INFO, WARNING, ERROR
-        --save-config           Сохранить текущую конфигурацию
-        --help                  Показать эту справку
-        --print-config          Вывести настройки
+        --model <имя>             Использовать модель (например: llama3.2, gemma3)
+        --log-level <уровень>     Уровень логирования: DEBUG, INFO, WARNING, ERROR
+        --initial-prompt <промт>  Инициализирующий запрос в LLM, объясняющий формат ответа и роль ассистента (для сброса не передавать значение)
+        --help                    Показать эту справку
+        --print-config            Вывести настройки
     """.trimIndent())
 }
 
 fun printConfig() {
     println("""
-        model: ${config?.model ?: ""}
-        logLevel: ${config?.logLevel ?: ""}
-    """.trimIndent())
+  model: ${config?.model ?: ""}
+  logLevel: ${config?.logLevel ?: ""}
+  initialPrompt: 
+${config?.initialPrompt ?: ""}
+""".trimIndent())
 }
 
 fun processResponse(response: JsonMessage) {

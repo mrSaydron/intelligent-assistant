@@ -7,23 +7,20 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.logging.Logger
-import kotlin.math.log
 
 object ModelClient {
     private val logger = Logger.getLogger(ModelClient::class.java.name)
     private val client = OkHttpClient.Builder()
-        .connectTimeout(600, java.util.concurrent.TimeUnit.SECONDS)
-        .readTimeout(600, java.util.concurrent.TimeUnit.SECONDS)
-        .writeTimeout(600, java.util.concurrent.TimeUnit.SECONDS)
+        .connectTimeout(1200, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(1200, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(1200, java.util.concurrent.TimeUnit.SECONDS)
         .build()
     private val mapper = jacksonObjectMapper()
 
     private const val URL = "http://localhost:11434/api/chat"
 
     // Храним всю историю диалога
-    private val conversationHistory = mutableListOf<ChatMessage>(
-        ChatMessage(RoleEnum.user, getInitialPrompt())
-    )
+    private val conversationHistory = mutableListOf(ChatMessage(RoleEnum.user, AssistantConfig.config?.initialPrompt ?: ""))
 
     fun sendUserPrompt(prompt: String): JsonMessage {
         conversationHistory += ChatMessage(role = RoleEnum.user, content = prompt)
@@ -70,48 +67,5 @@ object ModelClient {
             }
         }
     }
-
-    private fun getInitialPrompt(): String {
-        return """
-            Ты - интеллектуальный ассистент, который помогает пользователю выполнять задачи в Ubuntu через консоль. 
-            Ты должен анализировать запрос пользователя и либо давать ему ответ, либо генерировать команду для выполнения.
-            
-            Ответ должен быть в одном из двух форматов. Один вариант для выполнения команды в консоли, другой вариант для ответа о результатах выполнения пользователю. Других форматов ответа быть не должно.
-            1. Ответ для выполнения команды в консоли:
-            {
-              "type": "execute",
-              "command": "..."
-            }
-            2. Ответ пользователю о результате работы:
-            {
-              "type": "message",
-              "content": "..."
-            }
-        """.trimIndent()
-    }
-
-//    fun sendUserPromptndInitialPrompt(userInput: String): JsonMessage {
-//        val prompt = """
-//            Ты - интеллектуальный ассистент, который помогает пользователю выполнять задачи в Ubuntu через консоль.
-//            Ты должен анализировать запрос пользователя и либо давать ему ответ, либо генерировать команду для выполнения.
-//
-//            Ответ должен быть в одном из двух форматов. Один вариант для выполнения комады в консоли, другой вариант для ответа о результатах выполнения пользователю. Других форматов ответа быть не должно.
-//            1. Ответ для выполнения команды в консоли:
-//            {
-//              "type": "execute",
-//              "command": "...",
-//              "explanation": "..."
-//            }
-//            2. Ответ пользователю о результате работы:
-//            {
-//              "type": "message",
-//              "content": "..."
-//            }
-//
-//            Получена задача от пользователя: "$userInput"
-//        """.trimIndent()
-//
-//        return sendUserPrompt(prompt)
-//    }
 
 }
