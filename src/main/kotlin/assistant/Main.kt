@@ -2,6 +2,7 @@ package assistant
 
 import assistant.AssistantConfig.Companion.config
 import assistant.model.JsonMessage
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -10,6 +11,7 @@ private val logger = Logger.getLogger("Main")
 
 fun main(args: Array<String>) {
     config = AssistantConfig.load()
+    val scanner = Scanner(System.`in`)
 
     val promptArgs = handleCommandParams(args)
 
@@ -18,8 +20,9 @@ fun main(args: Array<String>) {
         println("🧠 Интеллектуальный ассистент запущен. Введите задачу:")
         while (true) {
             print("> ")
-            val userInput = readlnOrNull()?.trim()
-            if (userInput.isNullOrEmpty()) return
+//            val userInput = readlnOrNull()?.trim()
+            val userInput = scanner.nextLine().trim()
+            if (userInput.isEmpty()) return
 
             val userPrompt = ModelClient.sendUserPrompt(userInput)
             processResponse(userPrompt)
